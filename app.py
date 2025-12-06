@@ -15,10 +15,10 @@ def analyze_audio_file(audio_file):
     Args:
         audio_file: アップロードされた音声ファイル
     Returns:
-        波形画像、スペクトログラム画像、メルスペクトログラム画像、音声情報テキスト
+        波形画像、スペクトログラム画像、メルスペクトログラム画像、ピッチ画像、音声情報テキスト
     """
     if audio_file is None:
-        return None, None, None, "音声ファイルをアップロードしてください。"
+        return None, None, None, None, "音声ファイルをアップロードしてください。"
 
     try:
         # 分析器を初期化
@@ -37,12 +37,13 @@ def analyze_audio_file(audio_file):
             result["waveform"],
             result["spectrogram"],
             result["mel_spectrogram"],
+            result["pitch"],
             info_text
         )
 
     except Exception as e:
         error_msg = f"エラーが発生しました:\n{str(e)}\n\n詳細: {type(e).__name__}"
-        return None, None, None, error_msg
+        return None, None, None, None, error_msg
 
 
 def create_demo():
@@ -58,7 +59,8 @@ def create_demo():
             - **波形表示**: 時間軸に沿った音声振幅の可視化
             - **スペクトログラム**: 時間-周波数解析による音声の周波数成分表示
             - **メルスペクトログラム**: 人間の聴覚特性を考慮した周波数表示
-            - **音声情報**: サンプリングレート、長さ、振幅などの詳細情報
+            - **ピッチ分析**: 音高（基本周波数）の時間変化を可視化
+            - **音声情報**: サンプリングレート、長さ、振幅、ピッチなどの詳細情報
 
             ## 使い方
             1. 下のボックスに音声ファイル（MP3, WAV等）をアップロード
@@ -112,6 +114,12 @@ def create_demo():
                 type="pil"
             )
 
+        with gr.Row():
+            pitch_output = gr.Image(
+                label="ピッチ（Pitch / Fundamental Frequency）",
+                type="pil"
+            )
+
         # 音声がアップロードされたら自動的に解析
         audio_input.change(
             fn=analyze_audio_file,
@@ -120,6 +128,7 @@ def create_demo():
                 waveform_output,
                 spectrogram_output,
                 mel_spectrogram_output,
+                pitch_output,
                 info_output
             ]
         )
@@ -144,6 +153,10 @@ def create_demo():
             #### メルスペクトログラム（Mel Spectrogram）
             人間の聴覚特性を考慮したスペクトログラムです。低周波数帯域をより詳細に表示します。
             音声認識や音楽情報検索などで広く使用されています。
+
+            #### ピッチ（Pitch / Fundamental Frequency）
+            音の高さ（基本周波数）の時間変化を表示します。歌声の音程変化や楽器の音高を可視化できます。
+            音楽分析、音声分析、音響研究などで重要な指標となります。
             """
         )
 
