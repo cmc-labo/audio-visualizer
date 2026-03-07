@@ -196,10 +196,9 @@ class AudioAnalyzer:
             ax.set_xlim(0, times[-1] if len(times) > 0 else 1)
 
             # Y軸の範囲を見やすく設定
-            if len(pitch_values) > 0:
-                y_min = max(0, min(pitch_values) - 50)
-                y_max = max(pitch_values) + 50
-                ax.set_ylim(y_min, y_max)
+            y_min = max(0, min(pitch_values) - 50)
+            y_max = max(pitch_values) + 50
+            ax.set_ylim(y_min, y_max)
         else:
             # ピッチが検出されなかった場合
             ax.text(0.5, 0.5, 'No pitch detected',
@@ -264,7 +263,10 @@ class AudioAnalyzer:
         buf = io.BytesIO()
         fig.savefig(buf, format='png', dpi=100, bbox_inches='tight')
         buf.seek(0)
-        img = Image.open(buf)
+        # copy() forces immediate pixel loading, detaching the image from the
+        # buffer so the buffer can be safely closed (Image.open is lazy).
+        img = Image.open(buf).copy()
+        buf.close()
         return img
 
     def analyze_audio(self, file_path: str):
