@@ -232,14 +232,22 @@ class AudioAnalyzer:
             if pitch > 0:
                 pitch_values.append(pitch)
 
+        # dBFS: 0 dBFS = full scale (クリッピング直前)。負の値ほど小さい音
+        dbfs = 20 * np.log10(rms + 1e-10)
+
+        # テンポ推定
+        tempo, _ = librosa.beat.beat_track(y=y, sr=sr)
+
         info = {
             "Duration": f"{duration:.2f} seconds",
             "Sample Rate": f"{sr} Hz",
             "Total Samples": f"{len(y):,}",
             "RMS Energy": f"{rms:.6f}",
+            "Loudness": f"{dbfs:.2f} dBFS",
             "Zero Crossings": f"{zero_crossings:,}",
             "Max Amplitude": f"{np.abs(y).max():.6f}",
-            "Min Amplitude": f"{np.abs(y).min():.6f}"
+            "Min Amplitude": f"{np.abs(y).min():.6f}",
+            "Tempo": f"{float(tempo):.1f} BPM",
         }
 
         # ピッチ統計を追加
