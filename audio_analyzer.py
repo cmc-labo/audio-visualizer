@@ -235,8 +235,14 @@ class AudioAnalyzer:
         # dBFS: 0 dBFS = full scale (クリッピング直前)。負の値ほど小さい音
         dbfs = 20 * np.log10(rms + 1e-10)
 
+        # Crest Factor: ピーク対RMS比 (dB)。高いほどダイナミクスが大きい（非圧縮）
+        crest_factor_db = 20 * np.log10(np.abs(y).max() / (rms + 1e-10))
+
         # テンポ推定
         tempo, _ = librosa.beat.beat_track(y=y, sr=sr)
+
+        # Spectral Centroid: スペクトルの重心周波数。高いほど明るい音色
+        spectral_centroid = float(np.mean(librosa.feature.spectral_centroid(y=y, sr=sr)))
 
         info = {
             "Duration": f"{duration:.2f} seconds",
@@ -244,10 +250,12 @@ class AudioAnalyzer:
             "Total Samples": f"{len(y):,}",
             "RMS Energy": f"{rms:.6f}",
             "Loudness": f"{dbfs:.2f} dBFS",
+            "Crest Factor": f"{crest_factor_db:.2f} dB",
             "Zero Crossings": f"{zero_crossings:,}",
             "Max Amplitude": f"{np.abs(y).max():.6f}",
             "Min Amplitude": f"{np.abs(y).min():.6f}",
             "Tempo": f"{float(tempo):.1f} BPM",
+            "Spectral Centroid": f"{spectral_centroid:.2f} Hz",
         }
 
         # ピッチ統計を追加
