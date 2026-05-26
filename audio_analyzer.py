@@ -244,8 +244,13 @@ class AudioAnalyzer:
         # Spectral Centroid: スペクトルの重心周波数。高いほど明るい音色
         spectral_centroid = float(np.mean(librosa.feature.spectral_centroid(y=y, sr=sr)))
 
+        # Spectral Rolloff: 全エネルギーの85%が含まれる周波数。高いほど高域成分が多い
+        spectral_rolloff = float(np.mean(librosa.feature.spectral_rolloff(y=y, sr=sr)))
+
+        mm, ss = divmod(int(duration), 60)
+
         info = {
-            "Duration": f"{duration:.2f} seconds",
+            "Duration": f"{mm}:{ss:02d} ({duration:.2f}s)",
             "Sample Rate": f"{sr} Hz",
             "Total Samples": f"{len(y):,}",
             "RMS Energy": f"{rms:.6f}",
